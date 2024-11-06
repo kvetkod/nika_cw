@@ -74,6 +74,46 @@ SC_AGENT_IMPLEMENTATION(CreateRelationAgent)
 
   m_memoryCtx.EraseElement(formLinkAddr);
 
+  if (formLinkContent == "User close")
+  {
+    ScAddr const & phrase = m_memoryCtx.HelperFindBySystemIdtf("concept_phrase_about_user_close");
+    ScTemplate searchPhraseConstruction;
+    searchPhraseConstruction.TripleWithRelation(
+      InterfaceKeynodes::concept_phrase,
+      ScType::EdgeDCommonVar,
+      phrase,
+      ScType::EdgeAccessVarPosPerm,
+      InterfaceKeynodes::nrel_inclusion
+    );
+    searchPhraseConstruction.Triple(
+      phrase,
+      ScType::EdgeAccessVarPosPerm,
+      ScType::LinkVar >> "_link"
+    );
+    searchPhraseConstruction.Triple(
+      InterfaceKeynodes::lang_ru,
+      ScType::EdgeAccessVarPosPerm,
+      "_link"
+    );
+
+    ScTemplateSearchResult phraseConstruction;
+    m_memoryCtx.HelperSearchTemplate(searchPhraseConstruction, phraseConstruction);
+
+    std::string answer;
+    m_memoryCtx.GetLinkContent(phraseConstruction[0]["_link"], answer);
+    createAnswer(answer);
+
+    for (size_t i = 0; i < phraseConstruction[0].Size(); ++i)
+    {
+      m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, phraseConstruction[0][i]);
+    }
+
+    SC_LOG_DEBUG("CreateClassAgent finished : user close");
+    utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+    return SC_RESULT_OK;
+  }
+
+/*
   std::vector<std::string> formItems = split(formLinkContent, "\n");
   
   ScTemplate relationConstruction;
@@ -190,37 +230,20 @@ SC_AGENT_IMPLEMENTATION(CreateRelationAgent)
   ScTemplateGenResult full_construction;
   m_memoryCtx.HelperGenTemplate(relationConstruction, full_construction);
 
-  createAnswerMessageAndStructure("concept_phrase_about_successful_creating_relation", answerStructure);
+  
 
   for (size_t i = 0; i < full_construction.Size(); ++i)
   {
     m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, full_construction[i]);
   }
-
+*/
+createAnswerMessageAndStructure("concept_phrase_about_successful_creating_relation", answerStructure);
   SC_LOG_DEBUG("CreateRelationAgent finished");
   utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
   return SC_RESULT_OK;
 }
 
 
-
-std::vector<std::string> CreateRelationAgent::split(const string & s, const string & delimiter)
-{
-  std::vector<std::string> tokens;
-    std::size_t start = 0;
-    std::size_t end = s.find(delimiter);
-    
-    while (end != std::string::npos)
-    {
-        tokens.push_back(s.substr(start, end - start));
-        start = end + delimiter.length();
-        end = s.find(delimiter, start);
-    }
-    
-    tokens.push_back(s.substr(start));
-    
-    return tokens;
-}
 
 bool CreateRelationAgent::checkActionClass(ScAddr const & actionAddr)
 {

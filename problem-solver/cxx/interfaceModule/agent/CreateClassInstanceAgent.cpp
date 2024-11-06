@@ -59,12 +59,8 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
   
   if (is_success)
   {
-    SC_LOG_ERROR("size of answer structure");
-    SC_LOG_ERROR(resultAnswerStructure.Size());
     for (size_t i = 0; i < resultAnswerStructure.Size(); ++i)
     {
-      SC_LOG_ERROR("For step");
-      SC_LOG_ERROR(i);
       m_memoryCtx.EraseElement(resultAnswerStructure[i]["y"]);
     }
   }
@@ -117,7 +113,7 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
     return SC_RESULT_OK;
   }
 
-  
+  /*
   std::vector<std::string> formItems = split(formLinkContent, "\n");
 
   if (m_memoryCtx.HelperFindBySystemIdtf(formItems[0]).IsValid() || formItems[1] == "" || formItems[2] == "")
@@ -202,12 +198,14 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
   ScTemplateGenResult full_construction;
   m_memoryCtx.HelperGenTemplate(instanceConstruction, full_construction);
 
-  createAnswerMessageAndStructure("concept_phrase_about_success_creating_class_instance", answerStructure);
+  
 
   for (size_t i = 0; i < full_construction.Size(); ++i)
   {
     m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, full_construction[i]);
-  }
+  }*/
+
+ createAnswerMessageAndStructure("concept_phrase_about_success_creating_class_instance", answerStructure);
 
   SC_LOG_DEBUG("CreateClassInstanceAgent finished");
   utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
@@ -215,24 +213,6 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
 }
 
 
-
-std::vector<std::string> CreateClassInstanceAgent::split(const string & s, const string & delimiter)
-{
-  std::vector<std::string> tokens;
-    std::size_t start = 0;
-    std::size_t end = s.find(delimiter);
-    
-    while (end != std::string::npos)
-    {
-        tokens.push_back(s.substr(start, end - start));
-        start = end + delimiter.length();
-        end = s.find(delimiter, start);
-    }
-    
-    tokens.push_back(s.substr(start));
-    
-    return tokens;
-}
 
 bool CreateClassInstanceAgent::checkActionClass(ScAddr const & actionAddr)
 {
@@ -295,3 +275,5 @@ void CreateClassInstanceAgent::createAnswerMessageAndStructure(std::string conce
     m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, phraseConstruction[0][i]);
   }
 }
+
+

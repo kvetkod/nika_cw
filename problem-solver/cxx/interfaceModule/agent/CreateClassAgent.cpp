@@ -17,6 +17,8 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <cctype>
+#include<set>
 
 using namespace interfaceModule;
 using namespace scAgentsCommon;
@@ -63,7 +65,6 @@ SC_AGENT_IMPLEMENTATION(CreateClassAgent)
       m_memoryCtx.EraseElement(resultAnswerStructure[i]["y"]);
     }
   }
-  //------------------------------
 
   ScAddr const & formLinkAddr = utils::IteratorUtils::getAnyByOutRelation(&m_memoryCtx, questionNode, scAgentsCommon::CoreKeynodes::rrel_2);
 
@@ -71,7 +72,7 @@ SC_AGENT_IMPLEMENTATION(CreateClassAgent)
   m_memoryCtx.GetLinkContent(formLinkAddr, formLinkContent);
 
   m_memoryCtx.EraseElement(formLinkAddr);
-
+//user close
   if (formLinkContent == "User close")
   {
     ScAddr const & phrase = m_memoryCtx.HelperFindBySystemIdtf("concept_phrase_about_user_close");
@@ -110,8 +111,191 @@ SC_AGENT_IMPLEMENTATION(CreateClassAgent)
     utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
     return SC_RESULT_OK;
   }
+//create result
+//rrel nodes
+  ScAddr const & _rrel_idtf = m_memoryCtx.HelperFindBySystemIdtf("rrel_system_idtf");
+  ScAddr const & _rrel_ru = m_memoryCtx.HelperFindBySystemIdtf("rrel_ru");
+  ScAddr const & _rrel_note = m_memoryCtx.HelperFindBySystemIdtf("rrel_note");
+  ScAddr const & _rrel_super_class = m_memoryCtx.HelperFindBySystemIdtf("rrel_super_class");
+  ScAddr const & _rrel_decomposition= m_memoryCtx.HelperFindBySystemIdtf("rrel_decomposition");
 
-  std::vector<std::string> formItems = split(formLinkContent, "\n");
+//find nodes
+  ScAddr const & _system_idtf = utils::IteratorUtils::getAnyByOutRelation(&m_memoryCtx, questionNode, _rrel_idtf);
+  ScAddr const & _system_ru_idtf = utils::IteratorUtils::getAnyByOutRelation(&m_memoryCtx, questionNode, _rrel_ru);
+  ScAddr const & _note = utils::IteratorUtils::getAnyByOutRelation(&m_memoryCtx, questionNode, _rrel_note);
+  ScAddr const & _super_class = utils::IteratorUtils::getAnyByOutRelation(&m_memoryCtx, questionNode, _rrel_super_class);
+
+//проверка существующих нод на правильность заполнения
+  bool s_class = true;
+  if(m_memoryCtx.HelperGetSystemIdtf(_super_class) == "concept_"){
+    s_class = false;
+  }
+  string name;
+  name = m_memoryCtx.HelperGetSystemIdtf(_system_idtf);
+  if(m_memoryCtx.HelperGetSystemIdtf(_system_idtf) == "concept_"){
+    createAnswerMessageAndStructure("concept_phrase_about_error_invalid_params_for_creating_class", answerStructure);
+    
+    SC_LOG_DEBUG("CreateClassAgent finished with error: invalid inputs");
+    utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+    return SC_RESULT_OK;
+  }
+  std::string ru;
+  m_memoryCtx.GetLinkContent(_system_ru_idtf, ru);
+  if(ru == "error_no_data"){
+    createAnswerMessageAndStructure("concept_phrase_about_error_invalid_params_for_creating_class", answerStructure);
+    
+    SC_LOG_DEBUG("CreateClassAgent finished with error: invalid inputs");
+    utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+    return SC_RESULT_OK;
+  }
+  
+  string note;
+  m_memoryCtx.GetLinkContent(_note, note);
+  if(note== "error_no_data"){
+    createAnswerMessageAndStructure("concept_phrase_about_error_invalid_params_for_creating_class", answerStructure);
+    
+    SC_LOG_DEBUG("CreateClassAgent finished with error: invalid inputs");
+    utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+    return SC_RESULT_OK;
+  }
+
+  if(!containsOnlyEnglish(name)){
+    createAnswerMessageAndStructure("concept_errors_in_names", answerStructure);
+    
+    SC_LOG_DEBUG("CreateClassAgent finished with error: nodes exists");
+    utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+    return SC_RESULT_OK;
+  }
+
+  ScAddr new_concept;
+  if(m_memoryCtx.HelperFindBySystemIdtf(name, new_concept))
+  { 
+    if(m_memoryCtx.GetElementType(new_concept) != ScType::NodeVar){
+      createAnswerMessageAndStructure("concept_phrase_about_error_of_existing_class", answerStructure);
+    
+      SC_LOG_DEBUG("CreateClassAgent finished with error: nodes exists");
+      utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+      return SC_RESULT_OK;
+    }
+  }
+//decomposition
+
+  ScAddr const & rrel_decomposition = m_memoryCtx.HelperFindBySystemIdtf("rrel_decomposition");
+
+  ScTemplate search_d;
+
+  search_d.TripleWithRelation(
+    questionNode,
+    ScType::EdgeAccessVarPosPerm,
+    ScType::NodeVar >> "d",
+    ScType::EdgeAccessVarPosPerm,
+    rrel_decomposition
+  );
+  
+  ScTemplateSearchResult result_d;
+  bool const is_success_d = m_memoryCtx.HelperSearchTemplate(search_d, result_d);
+  set<string>decomposition;
+
+  if (is_success_d)
+  {
+    for (size_t i = 0; i < result_d.Size(); ++i)
+    {
+      string decomp = m_memoryCtx.HelperGetSystemIdtf(result_d[i]["d"]);
+      decomposition.insert(decomp);
+    }
+  }
+
+//create class
+  ScTemplate result_struct;
+
+
+  ScAddr const & system_idtf = m_memoryCtx.CreateNode(ScType::NodeConstClass);
+  m_memoryCtx.HelperSetSystemIdtf(name, system_idtf);
+
+  ScAddr const& ru_idtf = m_memoryCtx.CreateLink(ScType::LinkConst);
+  m_memoryCtx.SetLinkContent(ru_idtf, ru);
+
+  ScAddr const& note_node = m_memoryCtx.CreateLink(ScType::LinkConst);
+  m_memoryCtx.SetLinkContent(note_node, note);
+
+
+  vector<ScAddr> decomposition_addr;
+  for(string value : decomposition){
+    ScAddr const& addr = m_memoryCtx.HelperFindBySystemIdtf(value);
+    decomposition_addr.push_back(addr);
+  }
+
+  
+  if(s_class){
+    ScAddr super_class = m_memoryCtx.CreateNode(ScType::NodeConstClass);
+    string name_super_class = m_memoryCtx.HelperGetSystemIdtf(_super_class);
+    super_class = m_memoryCtx.HelperFindBySystemIdtf(name_super_class);
+
+  result_struct.TripleWithRelation(
+    super_class,
+    ScType::EdgeDCommonVar,
+    system_idtf,
+    ScType::EdgeAccessVarPosPerm,
+    InterfaceKeynodes::nrel_inclusion
+  );
+  }
+
+  result_struct.TripleWithRelation(
+    system_idtf,
+    ScType::EdgeDCommonVar,
+    ru_idtf,
+    ScType::EdgeAccessVarPosPerm,
+    InterfaceKeynodes::nrel_main_idtf
+  );
+
+  result_struct.Triple(
+    InterfaceKeynodes::lang_ru, 
+    ScType::EdgeAccessVarPosPerm,
+    ru_idtf
+  );
+
+  result_struct.TripleWithRelation(
+    system_idtf,
+    ScType::EdgeDCommonVar,
+    note_node,
+    ScType::EdgeAccessVarPosPerm,
+    InterfaceKeynodes::nrel_note
+  );
+
+  result_struct.Triple(
+    InterfaceKeynodes::lang_ru, 
+    ScType::EdgeAccessVarPosPerm,
+    note_node
+  );
+
+  for(int i = 0; i < decomposition_addr.size(); i++){
+    //= m_memoryCtx.CreateNode(ScType::NodeConstClass);
+    ScAddr dec = m_memoryCtx.HelperFindBySystemIdtf(m_memoryCtx.HelperGetSystemIdtf(decomposition_addr[i]));
+    //dec = m_memoryCtx.CreateNode(ScType::NodeConstClass);
+    SC_LOG_DEBUG(m_memoryCtx.GetElementType(dec));
+    result_struct.TripleWithRelation(
+      system_idtf,
+      ScType::EdgeDCommonVar,
+      dec,
+      ScType::EdgeAccessVarPosPerm,
+      InterfaceKeynodes::nrel_subdividing
+    );
+  }
+  ScTemplateGenResult genClassConstruction;
+  m_memoryCtx.HelperGenTemplate(result_struct, genClassConstruction);
+
+  createAnswerMessageAndStructure("concept_phrase_about_successful_creating_class", answerStructure);
+
+
+  for (size_t i = 0; i < genClassConstruction.Size(); ++i)
+  {
+      m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, genClassConstruction[i]);
+  }
+
+  SC_LOG_DEBUG("CreateClassAgent finished");
+  utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
+  return SC_RESULT_OK;
+
   /*bool checkExist = true, checkInvalid = false; 
 
   if (!formItems[4].empty())
@@ -135,7 +319,7 @@ SC_AGENT_IMPLEMENTATION(CreateClassAgent)
     if (formItemsDiv[i] == "concept_")
       checkInvalid = true;
     }
-  }*/
+  }
 
   ScAddr checkNode;
   if (m_memoryCtx.HelperFindBySystemIdtf(formItems[0], checkNode))
@@ -249,42 +433,22 @@ SC_AGENT_IMPLEMENTATION(CreateClassAgent)
 
   ScTemplateGenResult genClassConstruction;
   m_memoryCtx.HelperGenTemplate(classConstruction, genClassConstruction);
+*/
+}
 
-  createAnswerMessageAndStructure("concept_phrase_about_successful_creating_class", answerStructure);
-
-
-  for (size_t i = 0; i < genClassConstruction.Size(); ++i)
-  {
-    m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, genClassConstruction[i]);
-  }
-
-  SC_LOG_DEBUG("CreateClassAgent finished");
-  utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
-  return SC_RESULT_OK;
+bool CreateClassAgent::containsOnlyEnglish(const string name){
+    for (char ch : name) {
+        if (!std::isalpha(ch) && ch != '_') {
+            return false;
+        }
+    }
+    return true; 
 }
 
 bool CreateClassAgent::checkActionClass(ScAddr const & actionAddr)
 {
   return m_memoryCtx.HelperCheckEdge(
       InterfaceKeynodes::action_create_class, actionAddr, ScType::EdgeAccessConstPosPerm);
-}
-
-std::vector<std::string> CreateClassAgent::split(const string & s, const string & delimiter)
-{
-  std::vector<std::string> tokens;
-    std::size_t start = 0;
-    std::size_t end = s.find(delimiter);
-    
-    while (end != std::string::npos)
-    {
-        tokens.push_back(s.substr(start, end - start));
-        start = end + delimiter.length();
-        end = s.find(delimiter, start);
-    }
-    
-    tokens.push_back(s.substr(start));
-    
-    return tokens;
 }
 
 void CreateClassAgent::createAnswer(std::string message)

@@ -14,7 +14,6 @@ class CreateClassInstanceAgent: public ScAgent
 
 private:
   bool checkActionClass(ScAddr const & actionAddr);
-  std::vector<std::string> split(const std::string & s, const std::string & delimiter);
   void createAnswer(std::string message);
   void createAnswerMessageAndStructure(std::string conceptName, ScAddr const & answerStructure);
 };

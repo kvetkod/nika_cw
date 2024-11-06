@@ -13,9 +13,10 @@ class CreateClassAgent : public ScAgent
   SC_GENERATED_BODY()
 
 private:
+  bool containsOnlyEnglish(const std::string);
   bool checkActionClass(ScAddr const & actionAddr);
-  std::vector<std::string> split(const std::string & s, const std::string & delimiter);
   void createAnswer(std::string message);
   void createAnswerMessageAndStructure(std::string conceptName, ScAddr const & answerStructure);
+  ScAddr Search(ScAddr rrel_node, ScAddr node);
 };
 }  // namespace interfaceModule

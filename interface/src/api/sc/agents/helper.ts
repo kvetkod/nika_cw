@@ -17,6 +17,13 @@ const conceptTextFile = 'concept_text_file';
 const langRu = 'lang_ru';
 const message = '_message';
 
+
+let data : string[];
+let Chips : string[];
+let relation : {entity:string; relation:string;}[] = [];
+
+
+
 const baseKeynodes = [
     { id: nrelSystemIdentifier, type: ScType.NodeConstNoRole},
     { id: question, type: ScType.NodeConstClass },
@@ -41,9 +48,13 @@ export const handleSave = async (
             phraseSystemIdentifier: phraseSystemIdentifierRef.current?.value || '',
             phraseRussianIdentifier: phraseRussianIdentifierRef.current?.value || '',
             };
-
+        
+        //form - concept_message_about_, класс сообщений, название интента wit.ia
+        //chips - ответные фразы
+        //console.log(inputValues);
+        //console.log(form);
         const phrases = chipsValues.join(', ');
-
+        //console.log(phrases);
         const result : string = form + '\n' + Object.values(inputValues).join('\n') + '\n' + phrases;
 
         const resultLinkAddr = await createLinkText(result);
@@ -66,10 +77,10 @@ export const handleSaveClassInstance = async (
             classInstanceNote: classInstanceNoteRef.current?.value || '',
             classInstanceClass: classInstanceClass
             };
-
-        const result : string = Object.values(inputValues).join('\n');
+        //console.log(inputValues);
+        data = Object.values(inputValues);
+        const result : string = "done";//Object.values(inputValues).join('\n');
         const resultLinkAddr = await createLinkText(result);
-        
         if (resultLinkAddr !== null) {
             await createAgent(resultLinkAddr, actionCreateClassInstance);
         }
@@ -81,7 +92,9 @@ export const handleSaveClassInstanceWithRelations = async (
 ) => {
         const result : string = firstForm.join('\n') + "\n" + form.map(item => `${item.entity} - ${item.relation}`).join(', ');
         const resultLinkAddr = await createLinkText(result);
-        
+        data = Object.values(firstForm);
+        relation = form;
+        //console.log(relation);
         if (resultLinkAddr !== null) {
             await createAgent(resultLinkAddr, actionCreateClassInstance);
         }
@@ -107,9 +120,11 @@ export const handleRelationInstance = async (
             SecondDomain: relationSecondDomain
             };
         const relationClassificationList = getRelationClassificationList(isBinary, isOriented, isAntireflexive, isAsymmetric, isAntitransitive);
-        const result : string = Object.values(inputValues).join('\n') + '\n' + relationClassificationList.join(', ');
+        data = Object.values(inputValues);
+        Chips = relationClassificationList;
+        console.log(data);
+        const result : string = "done";//Object.values(inputValues).join('\n') + '\n' + relationClassificationList.join(', ');
         const resultLinkAddr = await createLinkText(result);
-        console.log(result);
         if (resultLinkAddr !== null) {
             await createAgent(resultLinkAddr, actionCreateRelation);
         }
@@ -129,11 +144,11 @@ export const handleSaveToCreateClass = async (
             classSuperClass: classSuperClass,
             };
 
-        console.log(inputValues);
+        data = Object.values(inputValues);
 
-        const phrases = chipsValues.join(', ');
+        Chips = chipsValues;
 
-        const result : string = Object.values(inputValues).join('\n') + '\n' + phrases;
+        const result : string = "done";//string = Object.values(inputValues).join('\n') + '\n' + phrases;
 
         const resultLinkAddr = await createLinkText(result);
         
@@ -165,6 +180,7 @@ export const createPopupCheck = async (
     const eventParams = new ScEventParams(keynodes[conceptName], ScEventType.AddOutgoingEdge, () => {setCreatePopup(true)});
     await client.eventsCreate([eventParams])
 }
+
 //Функции добавления агента в программу обработки
 const describeAgent = async (
     keynodes: Record<string, ScAddr>,
@@ -172,6 +188,7 @@ const describeAgent = async (
     action: string
 ) => {
     const actionNodeAlias = '_action_node';
+    console.log(actionNodeAlias)
 
     const template = new ScTemplate();
 
@@ -195,6 +212,253 @@ const describeAgent = async (
     template.triple(keynodes[conceptTextFile], ScType.EdgeAccessVarPosPerm, linkAddr);
     template.triple(keynodes[langRu], ScType.EdgeAccessVarPosPerm, linkAddr);
 
+    if(action == "action_create_class") {   
+        const keys = [
+            {id: data[0], type: ScType.NodeVar},
+            {id: data[3], type: ScType.NodeVar},
+            {id: "rrel_system_idtf", type: ScType.NodeConstRole},
+            {id: "rrel_ru", type: ScType.NodeConstRole},
+            {id: "rrel_note", type: ScType.NodeConstRole},
+            {id: "rrel_super_class", type: ScType.NodeConstRole},
+            {id: "rrel_decomposition", type: ScType.NodeConstRole}
+        ]
+    
+        const res = await client.resolveKeynodes(keys);
+        if(data[1] == "") data[1] = "error_no_data";
+        if(data[2] == "") data[2] = "error_no_data";
+        const link1 =  await createLinkText(data[1]);
+        const link2 = await createLinkText(data[2]);
+    
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[0]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_system_idtf"],
+        );
+        
+        if(link1 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link1,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_ru"],
+            );
+        }
+        if(link2 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link2,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_note"],
+            );
+        }
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[3]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_super_class"],
+        );
+    
+    
+        for(const value of Chips){
+            const key_chips = [
+                {id : value, type : ScType.NodeVar}
+            ];
+    
+            const res_chips = await client.resolveKeynodes(key_chips);
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                res_chips[value],
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_decomposition"],
+            );
+        }
+    }
+
+    if(action == "action_create_relation"){
+        const keys = [
+            {id: "rrel_system_idtf", type: ScType.NodeConstRole},
+            {id: "rrel_ru", type: ScType.NodeConstRole},
+            {id: "rrel_note", type: ScType.NodeConstRole},
+            {id: "rrel_first_domain", type: ScType.NodeConstRole},
+            {id: "rrel_second_domain", type: ScType.NodeConstRole},
+            {id: "rrel_include", type: ScType.NodeConstRole},
+            {id: data[0], type: ScType.NodeVar},
+            {id: data[3], type: ScType.NodeVar},
+            {id: data[4], type: ScType.NodeVar}
+        ]
+
+        const res = await client.resolveKeynodes(keys);
+
+        if(data[1] == "") data[1] = "error_no_data";
+        if(data[2] == "") data[2] = "error_no_data";
+        const link1 =  await createLinkText(data[1]);
+        const link2 = await createLinkText(data[2]);
+
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[0]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_system_idtf"],
+        );
+
+        if(link1 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link1,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_ru"],
+            );
+        }
+
+        if(link2 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link2,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_note"],
+            );
+        }
+
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[3]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_first_domain"],
+        );
+
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[4]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_second_domain"],
+        );
+
+        for(const value of Chips){
+            const key = [
+                {id: value, type: ScType.NodeVar}
+            ]
+            const ch = await client.resolveKeynodes(key);
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                ch[value],
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_include"],
+            );
+            
+        }
+    }
+
+    if(action == "action_create_class_instance"){
+        const keys = [
+            {id: "rrel_system_idtf", type: ScType.NodeConstRole},
+            {id: "rrel_ru", type: ScType.NodeConstRole},
+            {id: "rrel_note", type: ScType.NodeConstRole},
+            {id: "rrel_class", type: ScType.NodeConstRole},
+            {id: "rrel_relation", type: ScType.NodeConstRole},
+            {id: "rrel_relation_1", type: ScType.NodeConstRole},
+            {id: "rrel_relation_2", type: ScType.NodeConstRole},
+            {id: data[3], type: ScType.NodeVar}
+        ]
+        const res = await client.resolveKeynodes(keys);
+
+        if(data[0] == "") data[0] = "error_no_data";
+        if(data[1] == "") data[1] = "error_no_data";
+        if(data[2] == "") data[2] = "error_no_data";
+        const link0 = await createLinkText(data[0]);
+        const link1 =  await createLinkText(data[1]);
+        const link2 = await createLinkText(data[2]);
+
+        if(link0 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link0,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_system_idtf"],
+            );
+        }
+        if(link1 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link1,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_ru"],
+            );
+        }
+
+        if(link2 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link2,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_note"],
+            );
+        }
+
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[3]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_class"],
+        );
+
+        console.log(relation);
+
+        if (!relation || Object.keys(relation).length === 0) {
+            relation.push({entity: 'none', relation: 'none'});
+        }
+        for(let value of relation){
+            console.log(relation);
+            if(value.entity == 'none' && value.relation == 'none') break;
+            const node = "node";
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                [ScType.NodeVar, node],
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_relation"],
+            );
+
+            const keys_v = [
+                {id: value.entity, type: ScType.NodeVar},
+                {id: value.relation, type: ScType.NodeVar}
+            ];
+
+            const res_v = await client.resolveKeynodes(keys_v);
+
+            template.tripleWithRelation(
+                node,
+                ScType.EdgeAccessVarPosPerm,
+                res_v[value.entity],
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_relation_1"],
+            )
+
+            template.tripleWithRelation(
+                node,
+                ScType.EdgeAccessVarPosPerm,
+                res_v[value.relation],
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_relation_2"],
+            )
+
+        }
+    }
     return [template, actionNodeAlias] as const;
 };
 
@@ -271,4 +535,3 @@ export const findAnyInKb = async (setList: (options: { label: string; value: str
 };
 
   
-
