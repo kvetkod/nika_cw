@@ -27,6 +27,7 @@ using namespace commonModule;
 
 SC_AGENT_IMPLEMENTATION(CreateRelationAgent)
 {
+
   ScAddr const & questionNode = otherAddr;
   if (!checkActionClass(questionNode))
   {

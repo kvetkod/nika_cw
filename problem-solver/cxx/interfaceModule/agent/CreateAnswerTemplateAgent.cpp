@@ -57,14 +57,10 @@ SC_AGENT_IMPLEMENTATION(CreateAnswerTemplateAgent)
   ScTemplateSearchResult resultAnswerStructure;
   bool const is_success = m_memoryCtx.HelperSearchTemplate(findAnswerStructure, resultAnswerStructure);
   
-  if (is_success)
+ if (is_success)
   {
-    SC_LOG_ERROR("size of answer structure");
-    SC_LOG_ERROR(resultAnswerStructure.Size());
     for (size_t i = 0; i < resultAnswerStructure.Size(); ++i)
     {
-      SC_LOG_ERROR("For step");
-      SC_LOG_ERROR(i);
       m_memoryCtx.EraseElement(resultAnswerStructure[i]["y"]);
     }
   }
@@ -117,6 +113,7 @@ SC_AGENT_IMPLEMENTATION(CreateAnswerTemplateAgent)
     return SC_RESULT_OK;
   }
 
+/*
   std::vector<std::string> formItems = split(formLinkContent, "\n");
   ScAddr checkNode;
   if (m_memoryCtx.HelperFindBySystemIdtf(formItems[0], checkNode) || !m_memoryCtx.FindLinksByContent(formItems[2]).empty() || m_memoryCtx.HelperFindBySystemIdtf(formItems[3], checkNode))
@@ -431,7 +428,9 @@ SC_AGENT_IMPLEMENTATION(CreateAnswerTemplateAgent)
     {
       m_memoryCtx.CreateEdge(ScType::EdgeAccessConstPosPerm, answerStructure, classConstruction[i]);
     }
-  }
+  }*/
+
+  createAnswerMessageAndStructure("concept_phrase_about_successful_creating", answerStructure);
 
   SC_LOG_DEBUG("CreateAnswerTemplateAgent finished");
   utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);

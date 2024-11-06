@@ -21,6 +21,7 @@ const message = '_message';
 let data : string[];
 let Chips : string[];
 let relation : {entity:string; relation:string;}[] = [];
+let answers : string[];
 
 
 
@@ -48,14 +49,12 @@ export const handleSave = async (
             phraseSystemIdentifier: phraseSystemIdentifierRef.current?.value || '',
             phraseRussianIdentifier: phraseRussianIdentifierRef.current?.value || '',
             };
-        
-        //form - concept_message_about_, класс сообщений, название интента wit.ia
-        //chips - ответные фразы
-        //console.log(inputValues);
-        //console.log(form);
-        const phrases = chipsValues.join(', ');
-        //console.log(phrases);
-        const result : string = form + '\n' + Object.values(inputValues).join('\n') + '\n' + phrases;
+        data = Object.values(inputValues);
+        answers = Object.values(chipsValues);
+        const record : string[] = form.split('\n');
+
+        data = [...data, ...record];
+        const result : string =  "done";
 
         const resultLinkAddr = await createLinkText(result);
         
@@ -457,6 +456,87 @@ const describeAgent = async (
                 res["rrel_relation_2"],
             )
 
+        }
+    }
+
+    if(action == "action_create_message_class_and_phrase_template"){
+        const keys = [
+            {id: data[0], type: ScType.NodeVar},
+            {id: data[2], type: ScType.NodeVar},
+            {id: "rrel_phrase", type: ScType.NodeConstRole},
+            {id: "rrel_phrase_ru", type: ScType.NodeConstRole},
+            {id: "rrel_answer", type: ScType.NodeConstRole},
+            {id: "rrel_answer_ru", type: ScType.NodeConstRole},
+            {id: "rrel_wit", type: ScType.NodeConstRole},
+            {id: "rrel_answers", type: ScType.NodeConstRole}
+        ];
+
+        const res = await client.resolveKeynodes(keys);
+
+        const link1 = await createLinkText(data[1]);
+        const link2 = await createLinkText(data[3]);
+        if(data[4] == "") data[4] = "error_no_data";
+        const link3 = await createLinkText(data[4]);
+
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[0]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_phrase"]
+        );
+
+        if(link1 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link1,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_phrase_ru"]
+            );
+        }
+        
+        template.tripleWithRelation(
+            actionNodeAlias,
+            ScType.EdgeAccessVarPosPerm,
+            res[data[2]],
+            ScType.EdgeAccessVarPosPerm,
+            res["rrel_answer"]
+        );
+
+        if(link2 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link2,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_answer_ru"]
+            );
+        }
+
+        if(link3 !== null){
+            template.tripleWithRelation(
+                actionNodeAlias,
+                ScType.EdgeAccessVarPosPerm,
+                link3,
+                ScType.EdgeAccessVarPosPerm,
+                res["rrel_wit"]
+            );
+        }
+
+        if(answers.length == 0) answers.push("none");
+
+        for(let value of answers){
+            const link = await createLinkText(value);
+            if(link !== null){
+                template.tripleWithRelation(
+                    actionNodeAlias,
+                    ScType.EdgeAccessVarPosPerm,
+                    link,
+                    ScType.EdgeAccessVarPosPerm,
+                    res["rrel_answers"]
+                );
+            }
         }
     }
     return [template, actionNodeAlias] as const;
