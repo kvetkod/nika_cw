@@ -9,13 +9,18 @@ This agent creates a message class, phrase templates and a logical response rule
 **Parameters:**
 
 1. `messageAddr` -- an element of `concept_message`.
-2. `formLinkAddr` -- link with information from popup component.
+2. `formLinkAddr` -- link with information from popup component("done" or "user close").
+3. `nodeVarPhrase` -- class about questions.
+4. `linkPhraseRu` -- ru identifier of the class about questions.
+5. `nodeVarAnswer` -- class about answers.
+6. `linkAnswerRu` -- ru identifier or the class about answers.
+7. `structAnswers` -- array of answers.
 
 ### Examples
 
 **Example of an input structure:**
 
-<img src="../images/createMessageClassAndPhraseTemplateAgentInput.png"></img>
+<img src="../images/createMessageClassAndPhraseTemplateInput.jpg"></img>
 
 **Examples of an output structure:**
 

@@ -21,9 +21,15 @@
     * [Агент поиска слова по первой букве](agents/findWordInSetByFirstLetter.ru.md)
     * [Агент прогноза погоды](agents/weatherAgent.ru.md)
     * [Агент создания класса сообщений и шаблонов фраз](agents/createMessageClassAndPhraseTemplateAgent.ru.md)
+    * [Агент создания класса](agents/CreateClassAgent.ru.md)
+    * [Агент создания неролевого отношения](agents/createRelationAgent.ru.md)
+    * [Агент создания экземпляра класса](agents/createClassInstanceAgent.ru.md)
 
 - **Пользовательский интерфейс**
     * [Всплывающее окно для создания класса сообщений и шаблонов фраз](agents/popupComponentForCreatingMessageClassAndPhraseTemplate.ru.md) 
+    * [Всплывающее окно для создания класса](agents/popupCreateClass.ru.md)
+    * [Всплывающее окно для создания отношения](agents/popupCreateRelation.ru.md)
+    * [Всплывающее окно для создания экземпляра класса](agents/popupCreateClassInstance.ru.md)
 
 - **Шаблоны**
     * [Шаблоны для базы знаний](patterns/kb-patterns.ru.md)

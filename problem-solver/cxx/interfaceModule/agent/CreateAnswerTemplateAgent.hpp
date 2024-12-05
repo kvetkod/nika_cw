@@ -13,6 +13,7 @@ class CreateAnswerTemplateAgent : public ScAgent
   SC_GENERATED_BODY()
 
 private:
+  bool containsOnlyEnglish(const std::string name);
   bool checkActionClass(ScAddr const & actionAddr);
   std::vector<std::string> split(const std::string & s, const std::string & delimiter);
   void createAnswer(std::string message);

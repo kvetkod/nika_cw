@@ -37,13 +37,17 @@ plugins:
           Weather agent: "Агент прогноза погоды"
           Find word in set by first letter agent: "Агент поиска слова по первой букве"
           Create message class and phrase template agent: "Агент создания класса сообщений и шаблонов фраз"
+          Create class agent: "Агент создания класса"
+          Create relation agent: "Агент создания отношения"
+          Create class instance agent: "Агент создания экземпляра класса"
           Changelog: "Список изменений"
           Subsystems: "Подсистемы"
           License: "Лицензия"
           User Interface: "Пользовательский интерфейс"
           Popup component for creating message class and phrase template: "Всплывающее окно для создания класса сообщений и шаблонов фраз"
-
-
+          Popup component for creating class: "Всплывающее окно для создания класса"
+          Popup component for creating relation: "Всплывающее окно для создания отношения"
+          Popup component for creating class instance: "Всплывающее окно для создания экземпляра класса"
 nav:
   - Home: index.md
   - Home: index.ru.md
@@ -82,9 +86,21 @@ nav:
     - Find word in set by first letter agent: agents/findWordInSetByFirstLetter.ru.md
     - Create message class and phrase template agent: agents/createMessageClassAndPhraseTemplateAgent.md
     - Create message class and phrase template agent: agents/createMessageClassAndPhraseTemplateAgent.ru.md
+    - Create class agent: agents/CreateClassAgent.md
+    - Create class agent: agents/CreateClassAgent.ru.md
+    - Create relation agent: agents/createRelationAgent.md
+    - Create relation agent: agents/createRelationAgent.ru.md
+    - Create class instance agent: agents/createClassInstanceAgent.md
+    - Create class instance agent: agents/createClassInstanceAgent.ru.md
   - User Interface:
     - Popup component for creating message class and phrase template: ui/popupComponentForCreatingMessageClassAndPhraseTemplate.md
     - Popup component for creating message class and phrase template: ui/popupComponentForCreatingMessageClassAndPhraseTemplate.ru.md
+    - Popup component for creating class: ui/popupCreateClass.md
+    - Popup component for creating class: ui/popupCreateClass.ru.md
+    - Popup component for creating relation: ui/popupCreateRelation.md
+    - Popup component for creating relation: ui/popupCreateRelation.ru.md
+    - Popup component for creating class instance: ui/popupCreateClassInstance.md
+    - Popup component for creating class instance: ui/popupCreateClassInstance.ru.md
   - Subsystems:
      - scl-machine: subsystems/scl-machine.md
      - scl-machine: subsystems/scl-machine.ru.md

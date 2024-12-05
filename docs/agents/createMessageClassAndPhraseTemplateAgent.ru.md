@@ -9,13 +9,18 @@
 **Параметры:**
 
 1. `messageAddr` -- элемент класса `concept_message`.
-2. `formLinkAddr` -- ссылка на информацию из всплывающего компонента.
+2. `formLinkAddr` -- ссылка на информацию из всплывающего компонента("done" or "user close").
+3. `nodeVarPhrase` -- класс вопросов.
+4. `linkPhraseRu` -- идентификатор класса вопросов на русском.
+5. `nodeVarAnswer` -- класс ответов.
+6. `linkAnswerRu` -- идентификатор класса ответов на русском.
+7. `structAnswers` -- множество ответов.
 
 ### Пример
 
 **Пример входной структуры:**
 
-<img src="../images/createMessageClassAndPhraseTemplateAgentInput.png"></img>
+<img src="../images/createMessageClassAndPhraseTemplateInput.jpg"></img>
 
 **Примеры выходной конструкции:**
 

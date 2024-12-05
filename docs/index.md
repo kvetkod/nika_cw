@@ -21,9 +21,15 @@
     * [Find word in set by first letter agent](agents/findWordInSetByFirstLetter.md)
     * [Weather agent](agents/weatherAgent.md)
     * [Create message class and phrase template agent](agents/createMessageClassAndPhraseTemplateAgent.md)
+    * [Create class agent](agents/CreateClassAgent.md)
+    * [Create relation agent](agents/createRelationAgent.md)
+    * [Create class instance agent](agents/createClassInstanceAgent.md)
 
 - **User Interface**
     * [Popup component for creating message class and phrase template](ui/popupComponentForCreatingMessageClassAndPhraseTemplate.md) 
+    * [Popup component for creating class](ui/popupCreateClass.md)
+    * [Popup component for creating relation](ui/popupCreateRelation.md)
+    * [Popup component for creating class instance](ui/popupCreateClassInstance.md)
 
 - **Patterns**
     * [Knowledge base patterns](patterns/kb-patterns.md)

@@ -18,7 +18,7 @@ const langRu = 'lang_ru';
 const message = '_message';
 
 
-let data : string[];
+let data : string[] | undefined;
 let Chips : string[];
 let relation : {entity:string; relation:string;}[] = [];
 let answers : string[];
@@ -160,7 +160,7 @@ export const userClose = async () => {
     const result : string = "User close";
 
     const resultLinkAddr = await createLinkText(result);
-    
+    data = undefined;
     if (resultLinkAddr !== null) {
         await createAgent(resultLinkAddr, actionCreateMessageClassAndPhraseTemplate);
     }    
@@ -210,7 +210,9 @@ const describeAgent = async (
     );
     template.triple(keynodes[conceptTextFile], ScType.EdgeAccessVarPosPerm, linkAddr);
     template.triple(keynodes[langRu], ScType.EdgeAccessVarPosPerm, linkAddr);
-
+    
+    console.log(data);
+    if(data !== undefined){
     if(action == "action_create_class") {   
         const keys = [
             {id: data[0], type: ScType.NodeVar},
@@ -368,26 +370,25 @@ const describeAgent = async (
             {id: "rrel_relation", type: ScType.NodeConstRole},
             {id: "rrel_relation_1", type: ScType.NodeConstRole},
             {id: "rrel_relation_2", type: ScType.NodeConstRole},
+            {id: data[0], type: ScType.NodeVar},
             {id: data[3], type: ScType.NodeVar}
         ]
         const res = await client.resolveKeynodes(keys);
 
-        if(data[0] == "") data[0] = "error_no_data";
         if(data[1] == "") data[1] = "error_no_data";
         if(data[2] == "") data[2] = "error_no_data";
-        const link0 = await createLinkText(data[0]);
         const link1 =  await createLinkText(data[1]);
         const link2 = await createLinkText(data[2]);
 
-        if(link0 !== null){
+        
             template.tripleWithRelation(
                 actionNodeAlias,
                 ScType.EdgeAccessVarPosPerm,
-                link0,
+                res[data[0]],
                 ScType.EdgeAccessVarPosPerm,
                 res["rrel_system_idtf"],
             );
-        }
+        
         if(link1 !== null){
             template.tripleWithRelation(
                 actionNodeAlias,
@@ -539,6 +540,7 @@ const describeAgent = async (
             }
         }
     }
+}
     return [template, actionNodeAlias] as const;
 };
 

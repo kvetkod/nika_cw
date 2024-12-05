@@ -1,0 +1,14 @@
+concept_intelligent_study_ostis_system_kb
+	<- sc_node_class;;
+	
+concept_intelligent_study_ostis_system
+	<- sc_node_class;;
+	
+concept_intelligent_study_ostis_system_solver
+	<- sc_node_class;;
+	
+concept_intelligent_study_ostis_system_interface
+	<- sc_node_class;;
+	
+concept_intelligent_system
+	<- sc_node_class;;

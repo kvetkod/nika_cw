@@ -20,10 +20,28 @@ export const CreateMessageClassPopup = (setCreatePopup, setCreatePhraseTemplateP
 
     useEffect(() => {
         messageSystemIdentifierRef.current!.value = 'concept_message_about_';
-        messageRussianIdentifierRef.current!.value = 'Класс сообщений о ';
+        messageRussianIdentifierRef.current!.value = 'Класс сообщений о';
     }, [messageSystemIdentifierRef, messageRussianIdentifierRef]);
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        const idtf_prefix = 'concept_message_about_';
+        const idtf_currentValue = messageSystemIdentifierRef.current?.value ?? '';
+        if (!idtf_currentValue.startsWith(idtf_prefix) || idtf_currentValue.length <= idtf_prefix.length) {
+            alert('Некорректный системный идентификатор');
+            return;
+        }
+
+        const ru_prefix = 'Класс сообщений о';
+        const ru_currentValue = messageRussianIdentifierRef.current?.value ?? '';
+        if (!ru_currentValue.startsWith(ru_prefix) || ru_currentValue.length <= ru_prefix.length) {
+            alert('Некорректный идентификатор на русском языке');
+            return;
+        }
+
+        if (!messageWitAiRef.current?.value) {
+            alert("Поле 'Название интента в Wit.ai' не может быть пустым");
+            return;
+        }
         setCreatePopup(false);
         setCreatePhraseTemplatePopup(true);
         setForm(
@@ -52,7 +70,7 @@ export const CreateMessageClassPopup = (setCreatePopup, setCreatePhraseTemplateP
 
     const russianIdtfHandleKeyDown = (event) => {
         const inputValue = messageRussianIdentifierRef.current?.value;
-        const fixedText = 'Класс сообщений о ';
+        const fixedText = 'Класс сообщений о';
 
         if (inputValue === fixedText && (event.key === 'Backspace' || event.key === 'Delete')) {
             event.preventDefault();
@@ -71,22 +89,24 @@ export const CreateMessageClassPopup = (setCreatePopup, setCreatePhraseTemplateP
                 <p className="state-4">2</p>
             </div>
             <div className="form">
-                <h4>Системный индетификатор</h4>
+                <h4>Системный индетификатор*</h4>
                 <input
                     type="text"
                     className="input"
                     ref={messageSystemIdentifierRef}
                     onKeyDown={systemIdtfHandleKeyDown}
+                    required
                 />
-                <h4>Индетификатор на русском языке</h4>
+                <h4>Индетификатор на русском языке*</h4>
                 <input
                     type="text"
                     className="input"
                     ref={messageRussianIdentifierRef}
                     onKeyDown={russianIdtfHandleKeyDown}
+                    required
                 />
-                <h4>Название интента в Wit.ai</h4>
-                <input type="text" className="input" ref={messageWitAiRef} placeholder="Ваш Wit.ai intent" />
+                <h4>Название интента в Wit.ai*</h4>
+                <input type="text" className="input" ref={messageWitAiRef} placeholder="Ваш Wit.ai intent" required />
             </div>
             <button className="button next" onClick={handleClick}>
                 Далее
@@ -102,12 +122,16 @@ export const CreatePhraseTemplatePopup = (setCreatePhraseTemplatePopup, form) =>
     const [chipsValues, setChipsValues] = useState<string[]>([]);
     const [editingIndex, setEditingIndex] = useState(null);
     const handleChipAdd = (value: string) => {
+        if (!value) {
+            alert('Ответ не может быть пустым');
+            return;
+        }
         setChipsValues([...chipsValues, value]);
     };
 
     useEffect(() => {
         phraseSystemIdentifierRef.current!.value = 'concept_phrase_about_';
-        phraseRussianIdentifierRef.current!.value = 'Класс ответных фраз о ';
+        phraseRussianIdentifierRef.current!.value = 'Класс ответных фраз о';
     }, [phraseSystemIdentifierRef, phraseRussianIdentifierRef]);
 
     const handleChipDelete = (index: number) => {
@@ -127,6 +151,25 @@ export const CreatePhraseTemplatePopup = (setCreatePhraseTemplatePopup, form) =>
     };
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        if (chipsValues.length == 0) {
+            alert('Вы не добавили ни одного ответа');
+            return;
+        }
+
+        const idtf_prefix = 'concept_phrase_about_';
+        const idtf_currentValue = phraseSystemIdentifierRef.current?.value ?? '';
+        if (!idtf_currentValue.startsWith(idtf_prefix) || idtf_currentValue.length <= idtf_prefix.length) {
+            alert('Некорректный системный идентификатор');
+            return;
+        }
+
+        const ru_prefix = 'Класс ответных фраз о';
+        const ru_currentValue = phraseRussianIdentifierRef.current?.value ?? '';
+        if (!ru_currentValue.startsWith(ru_prefix) || ru_currentValue.length <= ru_prefix.length) {
+            alert('Некорректный идентификатор на русском языке');
+            return;
+        }
+
         await handleSave(phraseSystemIdentifierRef, phraseRussianIdentifierRef, form, chipsValues);
         setCreatePhraseTemplatePopup(false);
     };
@@ -148,7 +191,7 @@ export const CreatePhraseTemplatePopup = (setCreatePhraseTemplatePopup, form) =>
 
     const russianIdtfHandleKeyDown = (event) => {
         const inputValue = phraseRussianIdentifierRef.current?.value;
-        const fixedText = 'Класс ответных фраз о ';
+        const fixedText = 'Класс ответных фраз о';
 
         if (inputValue === fixedText && (event.key === 'Backspace' || event.key === 'Delete')) {
             event.preventDefault();
@@ -167,19 +210,21 @@ export const CreatePhraseTemplatePopup = (setCreatePhraseTemplatePopup, form) =>
                 <p className="state-2">2</p>
             </div>
             <div className="form">
-                <h4>Системный индетификатор</h4>
+                <h4>Системный индетификатор*</h4>
                 <input
                     type="text"
                     className="input"
                     ref={phraseSystemIdentifierRef}
                     onKeyDown={systemIdtfHandleKeyDown}
+                    required
                 />
-                <h4>Индетификатор на русском языке</h4>
+                <h4>Индетификатор на русском языке*</h4>
                 <input
                     type="text"
                     className="input"
                     ref={phraseRussianIdentifierRef}
                     onKeyDown={russianIdtfHandleKeyDown}
+                    required
                 />
             </div>
             <h3>Ответные фразы</h3>
@@ -247,6 +292,18 @@ export const CreateClassInstancePopup = (setCreateClassInstancePopup, setCreateR
     }, []);
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        if (!classInstanceRussianIdentifierRef.current?.value || !classInstanceSystemIdentifierRef.current?.value) {
+            alert('Вы не заполнили все обязательные поля');
+            return;
+        }
+
+        const class_prefix = 'concept_';
+        const class_currentValue = inputValue ?? '';
+        if (!class_currentValue.startsWith(class_prefix) || class_currentValue.length <= class_prefix.length) {
+            alert('Некорректный класс экземпляра');
+            return;
+        }
+
         await handleSaveClassInstance(
             classInstanceSystemIdentifierRef,
             classInstanceRussianIdentifierRef,
@@ -257,6 +314,18 @@ export const CreateClassInstancePopup = (setCreateClassInstancePopup, setCreateR
     };
 
     const handleAddRelationClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        if (!classInstanceRussianIdentifierRef.current?.value || !classInstanceSystemIdentifierRef.current?.value) {
+            alert('Вы не заполнили все обязательные поля');
+            return;
+        }
+
+        const class_prefix = 'concept_';
+        const class_currentValue = inputValue ?? '';
+        if (!class_currentValue.startsWith(class_prefix) || class_currentValue.length <= class_prefix.length) {
+            alert('Некорректный класс экземпляра');
+            return;
+        }
+
         setFirstForm([
             classInstanceSystemIdentifierRef.current?.value,
             classInstanceRussianIdentifierRef.current?.value,
@@ -279,19 +348,21 @@ export const CreateClassInstancePopup = (setCreateClassInstancePopup, setCreateR
                 ×
             </button>
             <div className="form">
-                <h4>Системный индетификатор</h4>
+                <h4>Системный индетификатор*</h4>
                 <input
                     type="text"
                     className="input"
                     placeholder="Системный идентификатор вашего экземпляра"
                     ref={classInstanceSystemIdentifierRef}
+                    required
                 />
-                <h4>Индетификатор на русском языке</h4>
+                <h4>Индетификатор на русском языке*</h4>
                 <input
                     type="text"
                     className="input"
                     placeholder="Название вашего экземпляра"
                     ref={classInstanceRussianIdentifierRef}
+                    required
                 />
                 <h4>Примечание(определение)</h4>
                 <input
@@ -300,7 +371,7 @@ export const CreateClassInstancePopup = (setCreateClassInstancePopup, setCreateR
                     placeholder="Описание вашего экземпляра"
                     ref={classInstanceNoteRef}
                 />
-                <h4>Класс</h4>
+                <h4>Класс*</h4>
                 <AutoComplete
                     value={inputValue}
                     options={availableClasses}
@@ -367,6 +438,20 @@ export const AddRelationToEntityPopup = (setCreateRelationToEntityPopup, firstFo
     };
 
     const handleSaveClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        const concept_prefix = 'concept_';
+        const concept_currentValue = entity ?? '';
+        if (!concept_currentValue.startsWith(concept_prefix) || concept_currentValue.length <= concept_prefix.length) {
+            alert('Некорректная сущность');
+            return;
+        }
+
+        const nrel_prefix = 'nrel_';
+        const nrel_currentValue = relation ?? '';
+        if (!nrel_currentValue.startsWith(nrel_prefix) || nrel_currentValue.length <= nrel_prefix.length) {
+            alert('Некорректное отношение');
+            return;
+        }
+
         const newForm = [...form, { entity: entity, relation: relation }];
         setForm(newForm);
         setEntity('concept_');
@@ -375,6 +460,7 @@ export const AddRelationToEntityPopup = (setCreateRelationToEntityPopup, firstFo
 
     const closeClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
         await userClose();
+        setCreateRelationToEntityPopup(false);
     };
 
     const handleChipDelete = (index: number) => {
@@ -394,7 +480,7 @@ export const AddRelationToEntityPopup = (setCreateRelationToEntityPopup, firstFo
                 <AutoComplete
                     value={entity}
                     options={availableEntity}
-                    style={{ width: 590 }}
+                    style={{ width: '98%' }}
                     filterOption={(inputValue, option) =>
                         option?.label.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                     }
@@ -408,7 +494,7 @@ export const AddRelationToEntityPopup = (setCreateRelationToEntityPopup, firstFo
                 <AutoComplete
                     value={relation}
                     options={availableRelations}
-                    style={{ width: 590 }}
+                    style={{ width: '98%' }}
                     filterOption={(inputValue, option) =>
                         option?.label.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                     }
@@ -418,6 +504,7 @@ export const AddRelationToEntityPopup = (setCreateRelationToEntityPopup, firstFo
                 >
                     <FormInput />
                 </AutoComplete>
+
                 {form.map((value, index) => (
                     <div className="chip-div" key={index}>
                         <div className="chip">
@@ -475,6 +562,18 @@ export const CreateClassPopup = (setCreateClassPopup) => {
     };
 
     const handleChipAdd = (value: string) => {
+        if (chipsValues.includes(value)) {
+            alert('Компонент не может быть добавлен дважды');
+            return;
+        }
+
+        const prefix = 'concept_';
+        const currentValue = value ?? '';
+        if (!currentValue.startsWith(prefix) || currentValue.length <= prefix.length) {
+            alert('Некорректный элемент декомпозиции');
+            return;
+        }
+
         setChipsValues([...chipsValues, value]);
     };
 
@@ -500,6 +599,27 @@ export const CreateClassPopup = (setCreateClassPopup) => {
     };
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        if (!classRussianIdentifierRef.current?.value || !classNoteIdentifierRef.current?.value) {
+            alert('Вы не заполнили все обязательные поля');
+            return;
+        }
+
+        const prefix = 'concept_';
+        const idtf_currentValue = classSystemIdentifierRef.current?.value ?? '';
+        if (!idtf_currentValue.startsWith(prefix) || idtf_currentValue.length <= prefix.length) {
+            alert('Некорректный системный идентификатор');
+            return;
+        }
+
+        const idtf_prefix = 'concept_';
+        const innput_currentValue = inputValue ?? '';
+        if (innput_currentValue != '') {
+            if (!innput_currentValue.startsWith(idtf_prefix) || innput_currentValue.length <= idtf_prefix.length) {
+                alert('Некорректный системный идентификатор');
+                return;
+            }
+        }
+
         await handleSaveToCreateClass(
             classSystemIdentifierRef,
             classRussianIdentifierRef,
@@ -538,6 +658,7 @@ export const CreateClassPopup = (setCreateClassPopup) => {
                     className="input"
                     ref={classSystemIdentifierRef}
                     onKeyDown={systemIdtfHandleKeyDown}
+                    required
                 />
                 <h4>Индетификатор на русском языке*</h4>
                 <input
@@ -545,6 +666,7 @@ export const CreateClassPopup = (setCreateClassPopup) => {
                     className="input"
                     ref={classRussianIdentifierRef}
                     placeholder="Название вашего класса"
+                    required
                 />
                 <h4>Примечание*</h4>
                 <input
@@ -552,6 +674,7 @@ export const CreateClassPopup = (setCreateClassPopup) => {
                     className="input"
                     ref={classNoteIdentifierRef}
                     placeholder="Примечание(определение)"
+                    required
                 />
                 <h4>Надкласс</h4>
                 <AutoComplete
@@ -569,6 +692,7 @@ export const CreateClassPopup = (setCreateClassPopup) => {
                     <FormInput />
                 </AutoComplete>
             </div>
+
             <h2>Разбиение на компоненты</h2>
 
             <div className="chips">
@@ -689,6 +813,28 @@ export const CreateRelationPopup = (setCreateRelationPopup) => {
     };
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+        const idtf_prefix = 'nrel_';
+        const idtf_currentValue = relationSystemIdentifierRef.current?.value ?? '';
+        if (!idtf_currentValue.startsWith(idtf_prefix) || idtf_currentValue.length <= idtf_prefix.length) {
+            alert('Некорректный системный идентификатор');
+            return;
+        }
+
+        if (!relationRussianIdentifierRef.current?.value) {
+            alert('Пустой идентификатор на русском языке');
+            return;
+        }
+
+        if (!firstDomain || !secondDomain) {
+            alert('Пустой домен');
+            return;
+        }
+
+        if (firstDomain == secondDomain) {
+            alert('Первый домен не может быть равен второму');
+            return;
+        }
+
         await handleRelationInstance(
             relationSystemIdentifierRef,
             relationRussianIdentifierRef,
@@ -716,23 +862,31 @@ export const CreateRelationPopup = (setCreateRelationPopup) => {
                 ×
             </button>
             <div className="form">
-                <h4>Системный индетификатор</h4>
+                <h4>Системный индетификатор*</h4>
                 <input
                     type="text"
                     className="input"
                     ref={relationSystemIdentifierRef}
                     onKeyDown={systemIdtfHandleKeyDown}
+                    required
                 />
-                <h4>Индетификатор на русском языке</h4>
+                <h4>Индетификатор на русском языке*</h4>
                 <input
                     type="text"
                     className="input"
                     placeholder="Название вашего отношения"
                     ref={relationRussianIdentifierRef}
+                    required
                 />
-                <h4>Примечание(определение)</h4>
-                <input type="text" className="input" placeholder="Описание вашего отношения" ref={relationNoteRef} />
-                <h4>Первый домен</h4>
+                <h4>Примечание(определение)*</h4>
+                <input
+                    type="text"
+                    className="input"
+                    placeholder="Описание вашего отношения"
+                    ref={relationNoteRef}
+                    required
+                />
+                <h4>Первый домен*</h4>
                 <AutoComplete
                     value={firstDomain}
                     options={availableClasses}
@@ -747,7 +901,7 @@ export const CreateRelationPopup = (setCreateRelationPopup) => {
                     <FormInput />
                 </AutoComplete>
 
-                <h4>Второй домен</h4>
+                <h4>Второй домен*</h4>
                 <AutoComplete
                     value={secondDomain}
                     options={availableClasses}

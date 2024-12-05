@@ -30,5 +30,4 @@ Possible results:
 
 * `Теперь я умею отвечать на новый вопрос!` - constructs (message class, phrase templates, and logical response rule) have been successfully created.
 * `Ошибка. Введённые вами системные индетификаторы либо wit.ai intent уже существуют.`- the data entered by the user already exists in the knowledge base.
-* `Ошибка. Вы не ввели системные индетификаторы, wit.ai intent или фразы овтетов.` - the user has not entered all the data.
 * `Дейстиве прервано пользователем.` - the user has closed the component.
