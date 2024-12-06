@@ -614,7 +614,7 @@ export const CreateClassPopup = (setCreateClassPopup) => {
         const idtf_prefix = 'concept_';
         const innput_currentValue = inputValue ?? '';
         if (innput_currentValue != '') {
-            if (!innput_currentValue.startsWith(idtf_prefix) || innput_currentValue.length <= idtf_prefix.length) {
+            if (!innput_currentValue.startsWith(idtf_prefix) || innput_currentValue.length < idtf_prefix.length) {
                 alert('Некорректный системный идентификатор');
                 return;
             }

@@ -368,8 +368,8 @@ const describeAgent = async (
             {id: "rrel_note", type: ScType.NodeConstRole},
             {id: "rrel_class", type: ScType.NodeConstRole},
             {id: "rrel_relation", type: ScType.NodeConstRole},
-            {id: "rrel_relation_1", type: ScType.NodeConstRole},
-            {id: "rrel_relation_2", type: ScType.NodeConstRole},
+            {id: "rrel_concept_relation", type: ScType.NodeConstRole},
+            {id: "rrel_nrel_relation", type: ScType.NodeConstRole},
             {id: data[0], type: ScType.NodeVar},
             {id: data[3], type: ScType.NodeVar}
         ]
@@ -446,7 +446,7 @@ const describeAgent = async (
                 ScType.EdgeAccessVarPosPerm,
                 res_v[value.entity],
                 ScType.EdgeAccessVarPosPerm,
-                res["rrel_relation_1"],
+                res["rrel_concept_relation"],
             )
 
             template.tripleWithRelation(
@@ -454,7 +454,7 @@ const describeAgent = async (
                 ScType.EdgeAccessVarPosPerm,
                 res_v[value.relation],
                 ScType.EdgeAccessVarPosPerm,
-                res["rrel_relation_2"],
+                res["rrel_nrel_relation"],
             )
 
         }

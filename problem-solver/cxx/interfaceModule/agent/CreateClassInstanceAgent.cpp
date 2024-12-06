@@ -316,6 +316,7 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
 
   for (const auto& p : relation_list)
   {
+    SC_LOG_DEBUG(p.first);
     ScAddr rel_addr = m_memoryCtx.HelperFindBySystemIdtf(p.first);
     ScAddr class_addr =m_memoryCtx.HelperFindBySystemIdtf(p.second);
     
@@ -366,94 +367,6 @@ SC_AGENT_IMPLEMENTATION(CreateClassInstanceAgent)
   SC_LOG_DEBUG("CreateClassInstanceAgent finished ");
   utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
   return SC_RESULT_OK;
-
-
-
-  // std::vector<std::string> formItems = split(formLinkContent, "\n");
-
-  // if (m_memoryCtx.HelperFindBySystemIdtf(formItems[0]).IsValid() || formItems[1] == "" || formItems[2] == "")
-  // {
-  //   createAnswerMessageAndStructure("concept_phrase_about_create_instance_error", answerStructure);
-  //   SC_LOG_DEBUG("CreateClassInstanceAgent finished with error");
-  //   utils::AgentUtils::finishAgentWork(&m_memoryCtx, questionNode, true);
-  //   return SC_RESULT_OK;
-  // }
-
-  
-  // ScTemplate instanceConstruction;
-
-  // ScAddr const & instanceNode = m_memoryCtx.CreateNode(ScType::NodeConst);
-  // m_memoryCtx.HelperSetSystemIdtf(formItems[0], instanceNode);
-
-  // ScAddr const & mainIdtf = m_memoryCtx.CreateLink(ScType::LinkConst);
-  // m_memoryCtx.SetLinkContent(mainIdtf, formItems[1]);
-
-  // ScAddr const & noteLink = m_memoryCtx.CreateLink(ScType::LinkConst);
-  // m_memoryCtx.SetLinkContent(noteLink, formItems[2]);
-
-  // ScAddr const & instanceClassNode = m_memoryCtx.HelperFindBySystemIdtf(formItems[3]);
-
-  // if (formItems.size() > 4)
-  // {
-  //   std::vector<std::string> relationsWithEntities = split(formItems[4], ", ");
-
-
-  //   for (size_t i = 0; i < relationsWithEntities.size(); ++i)
-  //   {
-  //     std::vector<std::string> entityAndRelation = split(relationsWithEntities[i], " - ");
-
-  //     ScAddr const & entity = m_memoryCtx.HelperFindBySystemIdtf(entityAndRelation[0]);
-  //     ScAddr const & relation = m_memoryCtx.HelperFindBySystemIdtf(entityAndRelation[1]);
-
-  //     instanceConstruction.TripleWithRelation(
-  //       instanceNode,
-  //       ScType::EdgeDCommonVar,
-  //       entity,
-  //       ScType::EdgeAccessVarPosPerm,
-  //       relation
-  //     );
-  //   } 
-  // }
-
-  // instanceConstruction.Triple(
-  //   InterfaceKeynodes::concept_wit_entity,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   instanceNode
-  // );
-  // instanceConstruction.Triple(
-  //   instanceClassNode,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   instanceNode
-  // );
-  // instanceConstruction.Triple(
-  //   InterfaceKeynodes::lang_ru,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   mainIdtf
-  // );
-  // instanceConstruction.Triple(
-  //   InterfaceKeynodes::lang_ru,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   noteLink
-  // );
-  // instanceConstruction.TripleWithRelation(
-  //   instanceNode,
-  //   ScType::EdgeDCommonVar,
-  //   mainIdtf,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   InterfaceKeynodes::nrel_main_idtf
-  // );
-  // instanceConstruction.TripleWithRelation(
-  //   instanceNode,
-  //   ScType::EdgeDCommonVar,
-  //   noteLink,
-  //   ScType::EdgeAccessVarPosPerm,
-  //   InterfaceKeynodes::nrel_note
-  // );
-
-  // ScTemplateGenResult full_construction;
-  // m_memoryCtx.HelperGenTemplate(instanceConstruction, full_construction);
-
-
 
 }
 
