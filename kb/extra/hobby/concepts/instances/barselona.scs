@@ -1,0 +1,6 @@
+barselona
+<- concept_club;
+=> nrel_main_idtf:
+    [Барселона](* <- lang_ru;; *);
+=> nrel_main_idtf:
+    [barselona](* <- lang_en;; *);;

@@ -1,0 +1,6 @@
+vanya
+<- concept_hobbyist;
+=> nrel_main_idtf:
+    [Ваня](* <- lang_ru;; *);
+=> nrel_main_idtf:
+    [Vanya](* <- lang_en;; *);;

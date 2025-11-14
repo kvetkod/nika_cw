@@ -1,0 +1,6 @@
+washer
+<- concept_instrument;
+=> nrel_main_idtf:
+    [шайба](* <- lang_ru;; *);
+=> nrel_main_idtf:
+    [washer](* <- lang_en;; *);;

@@ -1,0 +1,7 @@
+chess
+<- concept_hobby;
+=> nrel_main_idtf:
+    [шахматы](* <- lang_ru;; *);
+=> nrel_main_idtf:
+    [chess](* <- lang_en;; *);
+=> nrel_has_difficulty: high;;

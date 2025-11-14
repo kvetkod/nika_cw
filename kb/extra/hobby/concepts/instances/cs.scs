@@ -1,0 +1,7 @@
+cs 
+<- concept_game;
+=> nrel_main_idtf:
+    [КС](* <- lang_ru;; *);
+=> nrel_main_idtf:
+    [CS](* <- lang_en;; *);
+=> nrel_played_with: sanya;;
